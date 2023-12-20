@@ -1,5 +1,4 @@
-/*
-  Implement a class `Calculator` having below methods
+/*Implement a class `Calculator` having below methods
     - initialise a result variable in the constructor and keep updating it after every arithmetic operation
     - add: takes a number and adds it to the result
     - subtract: takes a number and subtracts it from the result
@@ -16,6 +15,68 @@
   Once you've implemented the logic, test your code by running
 */
 
-class Calculator {}
+class Calculator {
+  constructor(result) {
+    this.result = 0;
+  }
+
+  add(number) {
+    this.result += number;
+  }
+
+  subtract(number) {
+    this.result -= number;
+  }
+
+  multiply(number) {
+    this.result *= number;
+  }
+
+  divide(number) {
+    if (number) this.result /= number;
+    else throw Error("Error");
+  }
+
+  clear() {
+    this.result = 0;
+  }
+  getResult() {
+    return this.result;
+  }
+  checkBracket(str) {
+    let cnt = 0;
+    for (let i = 0; i < str.length; i++) {
+      if (str[i] == "(") ++cnt;
+      else if (str[i] == ")") --cnt;
+    }
+    return cnt;
+  }
+  checkDiscp(str) {
+    let flag = false;
+    for (let i = 0; i < str.length; i++) {
+      if (
+        str[i] != '(' &&
+        str[i] != ')' &&
+        str[i] != '+' &&
+        str[i] != '-' &&
+        str[i] != '/' &&
+        str[i] != '*' &&
+        str[i] != '.' &&
+        isNaN(str[i])
+      )
+        flag = true;
+    }
+    return flag;
+  }
+  calculate(str) {
+    str = str.replace(/\s+/g, "");
+    if (str.includes("/0")) {
+      throw new Error("Division by zero is not allowed");
+    }
+    if (this.checkBracket(str)) throw Error("Error");
+    if(this.checkDiscp(str)) throw Error("Error");
+    this.result = eval(str);
+  }
+}
 
 module.exports = Calculator;
