@@ -21,7 +21,7 @@
     Request Body: JSON object representing the todo item.
     Response: 201 Created with the ID of the created todo item in JSON format. eg: {id: 1}
     Example: POST http://localhost:3000/todos
-    Request Body: { "title": "Buy groceries", "completed": false, description: "I should buy groceries" }
+    Request Body: { "title": "Buy groceries", "completed": false, "description": "I should buy groceries" }
     
   4. PUT /todos/:id - Update an existing todo item by ID
     Description: Updates an existing todo item identified by its ID.
@@ -39,11 +39,81 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
+  const crypto = require("crypto");
+  const express = require("express");
+  const bodyParser = require("body-parser");
   const app = express();
+  const PORT = 3001;
+  class todoNode {
+    constructor(title, description) {
+      this.id = this.stringToDecimalHash(title);
+      this.title = title;
+      this.description = description;
+    }
+    stringToDecimalHash(inputString) {
+      const hash = crypto.createHash("md5");
+      const hexDigest = hash.update(inputString).digest("hex");
+      return parseInt(hexDigest, 16);
+    }
+  }
   
   app.use(bodyParser.json());
   
+  let todoArray = [];
+  
+  app.get("/todos", (req, res) => {
+    res.status(200).json(todoArray);
+  });
+  
+  app.get("/todos/:id", (req, res) => {
+    const todoID = req.params.id;
+    const filteredArray = todoArray.filter((item)=>{
+      return item.id == todoID;
+    });
+    if(filteredArray.length) res.status(200).json(filteredArray[0]);
+    else res.status(404).json("NOT FOUND");
+  });
+  
+  app.post('/todos',(req,res)=>{
+    const title = req.body.title;
+    const description = req.body.description;
+    const newItem = new todoNode(title,description);
+    todoArray.push(newItem);
+    res.status(201).json(newItem);
+  })
+  
+  app.put('/todos/:id',(req,res)=>{
+    const todoID = req.params.id;
+    const title = req.body.title;
+    const description = req.body.description;
+    let found = 0;
+    const todoIdx = todoArray.findIndex((item)=>{
+      return item.id == todoID;
+    })
+    if(todoIdx!=-1){
+      todoArray[todoIdx].title = title;
+      todoArray[todoIdx].description = description;
+      res.json(todoArray[todoIdx]);
+    }
+    else res.status(404).json("NOT FOUND");
+  })
+  app.delete('/todos/:id',(req,res)=>{
+    const todoID = req.params.id;
+    const initialSize = todoArray.length;
+    todoArray = todoArray.filter((item)=>{
+      return item.id!=todoID;
+    })
+    if(todoArray.length == initialSize) res.status(404).json("NOT FOUND");
+    else res.status(200).json("OK");
+    res.status(201).json(newItem.id);
+  })
+  
+  app.use((req, res, next) => {
+    res.status(404).send('404:Not Found');
+  });
+  
+  app.listen(PORT, () => {
+    console.log(`App is listening to ${PORT}`);
+  });
   module.exports = app;
+  
