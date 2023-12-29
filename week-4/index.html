@@ -7,42 +7,98 @@
     let todoState = [];
     let oldTodoState = [];
 
-    function addTodoToDom() {
-      
+    function addTodoToDom(toBeAdded) {
+      const todoListDiv = document.getElementById("todos");
+      const todoNodeDiv = document.createElement("div");
+      todoNodeDiv.setAttribute("id",toBeAdded.id);
+      function createContentNode(content,ele){
+        const contentDiv = document.createElement(ele);
+        contentDiv.innerHTML = content;
+        if(ele == "button" && content == "Mark as Done") contentDiv.setAttribute("onclick",`removeTodoFromDom('${todoNodeDiv.id}')`);
+        else if(ele == "button" && content == "Edit") contentDiv.setAttribute("onclick",`updateTodoInDom('${todoNodeDiv.id}')`);
+        todoNodeDiv.appendChild(contentDiv);
+      }
+      createContentNode(toBeAdded.title,"h3");
+      createContentNode(toBeAdded.description,"p");
+      createContentNode("Mark as Done","button");
+      createContentNode("Edit","button");
+      todoListDiv.appendChild(todoNodeDiv);
     }
 
-    function removeTodoFromDom(todo) {
-      
+    function removeTodoFromDom(toBeDeleted) {
+      const todoListDiv = document.getElementById("todos");
+      const deleteNode = document.getElementById(toBeDeleted);
+      todoListDiv.removeChild(deleteNode);
     }
 
-    function updateTodoInDom(oldTodo, newTodo) {
-        
+    function updateTodoInDom(toBeUpdated) {
+      const currentNode = document.getElementById(toBeUpdated);
+      const currentNodeTitle = document.getElementById(toBeUpdated).querySelector('h3');
+      const currentNodeDescription = document.getElementById(toBeUpdated).querySelector('p');
+
+      function inputBox(tag){
+        const nodeTag = currentNode.querySelector(tag);
+        const tagInput = document.createElement("input");
+        tagInput.setAttribute("type","text");
+        tagInput.value = nodeTag.innerHTML;
+        currentNode.replaceChild(tagInput,nodeTag);
+        return tagInput;
+      }
+
+      function updateTag(tag,tagInput){
+        let nodeTag;
+        if(tag == 'h3') nodeTag = currentNodeTitle;
+        else nodeTag = currentNodeDescription;
+        nodeTag.innerHTML = tagInput.value;
+        currentNode.replaceChild(nodeTag,tagInput);
+      }
+      
+      const titleInput = inputBox('h3');
+      const descriptionInput = inputBox('p');
+      
+      const buttons = currentNode.querySelectorAll('button');
+      buttons.forEach(item => {
+        currentNode.removeChild(item);
+      })
+      
+      const saveButton = document.createElement("button");
+      saveButton.innerHTML = "Save";
+      currentNode.appendChild(saveButton);
+
+      saveButton.onclick = function () {
+        updateTag('h3', titleInput);
+        updateTag('p', descriptionInput);
+        buttons.forEach(item => {
+          currentNode.appendChild(item);
+        })
+      currentNode.removeChild(saveButton);
+      };
     }
 
     function updateState(newTodos) {
-      // calculate the diff b/w newTodos and oldTodos.
-      // More specifically, find out what todos are - 
-      // 1. added
-      // 2. deleted
-      // 3. updated
-      const added = [];
-      const deleted = [];
-      const updated = [];
-      // calculate these 3 arrays
-      // call addTodo, removeTodo, updateTodo functions on each of the
-      // elements
-      oldTodoState = newTodos;
+      const added = newTodos.filter(item => {
+        const exists = oldTodoState.some(obj => {
+          return obj.id === item.id;
+        }); 
+        return !exists;
+      });
+      addTodoToDom(added[0]);
+      oldTodoState = [...newTodos];
     }
 
     function addTodo() {
       const title = document.getElementById("title").value;
       const description = document.getElementById("description").value;
-      todoState.push({
-        title: title,
-        description: description,
-        id: globalId++,
-      })
-      updateState(todoState);
+      if(title && description){
+        todoState.push({
+          title: title,
+          description: description,
+          id: globalId++,
+        });
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        updateState(todoState);
+      }
     }
   </script>
 </head>
