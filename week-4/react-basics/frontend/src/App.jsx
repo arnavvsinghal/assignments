@@ -83,7 +83,6 @@ function TodoComponent({ id, title, description, onClickDel }) {
       </p>
       <p style={{ fontSize: "14px", margin: "0" }}>{description}</p>
       <button onClick={() => onClickDel(id)}>Mark As Done</button>
-      <button>Edit</button>
     </div>
   );
 }
