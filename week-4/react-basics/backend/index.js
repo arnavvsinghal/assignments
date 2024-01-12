@@ -1,28 +1,29 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require('cors')
 const app = express();
 const PORT = 3000;
 const Todo = require("./db");
 const todoMiddleware = require("./middleware");
 
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
 app.post("/todo", todoMiddleware, async (req, res) => {
   const todoData = req.body;
-  await Todo.create({
+  const newTodo = await Todo.create({
     title: todoData.title,
     description: todoData.description,
   });
   res.json({
     message: "Todo created successfully.",
+    todo : newTodo
   });
 });
 app.get("/todos", async (req, res) => {
   const allTodos = await Todo.find({});
-  res.json({
-    todos: allTodos,
-  });
+  res.json(allTodos);
 });
 app.put("/:id", todoMiddleware, (req, res) => {
   const todoId = req.params.id;

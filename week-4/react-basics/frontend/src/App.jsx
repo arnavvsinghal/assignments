@@ -1,34 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useRef, useState } from 'react';
+import './App.css';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  console.log('App Rendered.');
+  const [todos,setTodos] = useState([]);
+  const titleRef = useRef();
+  const descriptionRef = useRef();
 
+  useEffect(()=>{
+    console.log("UseEffect");
+    axios.get('http://localhost:3000/todos')
+    .then(response => {
+      setTodos(response.data);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  },[]);
+  function addTodo(){
+    const todoData = {
+      title : titleRef.current.value,
+      description : descriptionRef.current.value
+    };
+    axios.post('http://localhost:3000/todo',todoData)
+    .then(response => {
+      console.log(response.data.message);
+      setTodos([...todos,response.data.todo]);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
+  
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div>
+      <div id="todo-input">
+        <input type="text" name="Title" placeholder="Title" ref={titleRef}/>
+        <input type="text" name="Title" placeholder="Description" ref={descriptionRef}/>
+        <button onClick={addTodo}>Add Todo</button>
+        {todos.map(item => <TodoComponent key={item._id} title={item.title} description={item.description}/>)}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
+  )
+}
+
+function TodoComponent({title,description}){
+  return (
+    <div style={{marginBlock:'10px'}}>
+      <p style={{fontSize:'16px', fontWeight:'bold',margin:'0'}}>{title}</p>
+      <p style={{fontSize:'12px',margin:'0'}}>{description}</p>
+    </div>
   )
 }
 
