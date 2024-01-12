@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cors = require('cors')
+const cors = require("cors");
 const app = express();
 const PORT = 3000;
 const Todo = require("./db");
@@ -18,13 +18,26 @@ app.post("/todo", todoMiddleware, async (req, res) => {
   });
   res.json({
     message: "Todo created successfully.",
-    todo : newTodo
+    todo: newTodo,
   });
 });
+
 app.get("/todos", async (req, res) => {
   const allTodos = await Todo.find({});
   res.json(allTodos);
 });
+
+app.delete("/:id",(req,res)=>{
+  const todoId = req.params.id;
+  Todo.findByIdAndDelete(todoId)
+  .then((doc)=>{
+    res.send("Deletion Successful");
+  })
+  .catch((err) => {
+    res.status(404).send("Deletion error!");
+  })
+});
+
 app.put("/:id", todoMiddleware, (req, res) => {
   const todoId = req.params.id;
   const todoData = req.body;
@@ -38,7 +51,7 @@ app.put("/:id", todoMiddleware, (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(404).send("Error!");
+      res.status(404).send("Updation error!");
     });
 });
 
