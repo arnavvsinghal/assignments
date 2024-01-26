@@ -1,0 +1,1 @@
+The question requires us to generate 3 birthday cards. The person to be wished has his/her name entered in the input box, according to which the wishes are rendered. This is same as Q6 where information has to acquired from an api and rendered accordingly. Hence, it is not done.
