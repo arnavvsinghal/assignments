@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 const { Schema, connect, model } = mongoose;
+try{
+  connect(
+    "mongodb+srv://arnavsinghal1234:kX9xZef5cOnnI6kb@cluster0.dqvtlqx.mongodb.net/paytm"
+  );
 
-connect(
-  "mongodb+srv://arnavsinghal1234:kX9xZef5cOnnI6kb@cluster0.dqvtlqx.mongodb.net/paytm"
-);
+} catch(err){
+  console.log(err);
+}
 
 const UserSchema = new Schema({
   username: {

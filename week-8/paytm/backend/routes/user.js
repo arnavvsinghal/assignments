@@ -32,19 +32,19 @@ router.put("/", userUpdate, authMiddleware, (req, res) => {
 router.post("/signup", userSignUpMiddleware, async (req, res) => {
   const userData = req.body;
   const newUser = await User.create(userData);
-  // const userJwt = jwt.sign(
-  //   {
-  //     userId: newUser._id,
-  //   },
-  //   JWT_SECRET
-  // );
+  const userJwt = jwt.sign(
+    {
+      userId: newUser._id,
+    },
+    JWT_SECRET
+  );
   const newUserBalance = await Account.create({
     userId: newUser._id,
     balance: Math.floor(Math.random() * 10000 + 1),
   });
   res.status(200).json({
     message: "User created successfully",
-    // token: userJwt,
+    token: userJwt,
   });
 });
 
@@ -60,9 +60,9 @@ router.post("/signin", userSignInMiddleware, (req, res) => {
   });
 });
 
-router.get("/bulk", async (req, res) => {
+router.get("/bulk",authMiddleware, async (req, res) => {
   const filter = req.query.filter || "";
-  const users = await User.find({
+  let users = await User.find({
     $or: [
       {
         firstName: {
@@ -76,14 +76,23 @@ router.get("/bulk", async (req, res) => {
       },
     ],
   });
-  console.log(users);
+  users = users.filter(user => user._id != req.userId)
   res.json({
-    user: users.map((user) => ({
+    users: users.map((user) => ({
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
       _id: user._id,
     })),
+  });
+});
+router.get("/about",authMiddleware, async (req, res) => {
+  const user = await User.findById(req.userId);
+  res.json({
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      _id: user._id,
   });
 });
 module.exports = router;

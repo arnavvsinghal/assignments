@@ -1,12 +1,9 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
-const { userUpdateSchema } = require("../types");
 
 function authMiddleware(req, res, next) {
-  const updateData = req.body;
-  const parseResult = userUpdateSchema.safeParse(updateData);
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ") || !parseResult.success) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(403).json({});
   }
   const userToken = authHeader.split(" ")[1];
