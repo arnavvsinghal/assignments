@@ -52,6 +52,5 @@ export async function updateTodo(todoId: number) {
  */
 export async function getTodos(userId: number) {
     const result = await client.query('SELECT title, description, done, id, user_id FROM todos WHERE user_id = $1', [userId]);
-    console.log(result.rows);
     return result.rows;
 }
